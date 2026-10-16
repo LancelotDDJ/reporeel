@@ -1,0 +1,124 @@
+name: Verify local exports
+
+"on":
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: ${{ matrix.os }} / Python ${{ matrix.python }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        os: [ubuntu-24.04, windows-2025]
+        python: ["3.10", "3.14"]
+    defaults:
+      run:
+        shell: python
+    steps:
+      - name: Check out source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: ${{ matrix.python }}
+
+      - name: Install project
+        run: |
+          import subprocess, sys
+          subprocess.run([sys.executable, "-m", "pip", "install", "-e", "."], check=True)
+
+      - name: Prepare a verified CJK font
+        run: |
+          import hashlib, os
+          from pathlib import Path
+          from urllib.request import urlopen
+          # Noto Sans CJK, SIL Open Font License 1.1.
+          # Same commit: https://github.com/notofonts/noto-cjk/blob/f8d157532fbfaeda587e826d4cd5b21a49186f7c/Sans/LICENSE
+          url = "https://raw.githubusercontent.com/notofonts/noto-cjk/f8d157532fbfaeda587e826d4cd5b21a49186f7c/Sans/OTF/SimplifiedChinese/NotoSansCJKsc-Regular.otf"
+          with urlopen(url, timeout=90) as source:
+              data = source.read(20_000_001)
+          if len(data) != 16_437_364:
+              raise RuntimeError("Unexpected font size")
+          expected = "2c76254f6fc379fddfce0a7e84fb5385bb135d3e399294f6eeb6680d0365b74b"
+          if hashlib.sha256(data).hexdigest() != expected:
+              raise RuntimeError("Font SHA-256 mismatch")
+          font = Path(os.environ["RUNNER_TEMP"]) / "NotoSansCJKsc-Regular.otf"
+          font.write_bytes(data)
+          with open(os.environ["GITHUB_ENV"], "a", encoding="utf-8") as env:
+              env.write("REPOREEL_FONT=" + font.as_posix() + "\n")
+          print("Verified Noto Sans CJK font:", expected)
+
+      - name: Run the unit suite without skipped tests
+        run: |
+          import sys, unittest
+          suite = unittest.defaultTestLoader.discover("tests")
+          result = unittest.TextTestRunner(verbosity=2).run(suite)
+          if not result.wasSuccessful() or result.testsRun == 0 or result.skipped:
+              raise SystemExit("Unit suite failed, was empty, or skipped required rendering checks")
+
+      - name: Verify missing-encoder diagnostics and image-only output
+        run: |
+          import json, subprocess, sys
+          from pathlib import Path
+          missing = subprocess.run(
+              [sys.executable, "-m", "reporeel", "doctor", "--ffmpeg", "reporeel-ci-encoder-does-not-exist"],
+              capture_output=True, text=True, encoding="utf-8"
+          )
+          status = json.loads(missing.stdout)
+          if missing.returncode != 1 or not status["images_ready"] or status["video_ready"]:
+              raise RuntimeError("Missing-encoder readiness is incorrect: " + missing.stdout)
+          subprocess.run([sys.executable, "-m", "reporeel", "sample", "ci-demo"], check=True)
+          story = Path("ci-demo/storyboard.json")
+          data = json.loads(story.read_text(encoding="utf-8"))
+          for scene, duration in zip(data["scenes"], [2.125, 3.25, 4.25]):
+              scene["duration"] = duration
+          story.write_text(json.dumps(data, ensure_ascii=False), encoding="utf-8")
+          subprocess.run([sys.executable, "-m", "reporeel", "build", str(story), "--out", "output/ci-stills", "--images-only"], check=True)
+          if Path("output/ci-stills/reel.mp4").exists():
+              raise RuntimeError("Image-only export unexpectedly created MP4")
+          for name in ["cover.png", "captions.srt", "voiceover.txt", "publish.md", "manifest.json"]:
+              if not (Path("output/ci-stills") / name).is_file():
+                  raise RuntimeError("Missing image-only output: " + name)
+
+      - name: Install Linux encoder
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes --no-install-recommends ffmpeg
+
+      - name: Build and verify actual MP4 on Linux
+        if: runner.os == 'Linux'
+        run: |
+          import hashlib, json, subprocess, sys
+          from pathlib import Path
+          subprocess.run([sys.executable, "-m", "reporeel", "doctor"], check=True)
+          subprocess.run([sys.executable, "-m", "reporeel", "build", "ci-demo/storyboard.json", "--out", "output/ci-video"], check=True)
+          subprocess.run([sys.executable, "tests/verify_video.py", "ci-demo/storyboard.json", "output/ci-video", "--report", "output/ci-video-check.json"], check=True)
+          movie = Path("output/ci-video/reel.mp4")
+          decoded = json.loads(subprocess.check_output([
+              "ffprobe", "-v", "error", "-count_frames", "-select_streams", "v:0",
+              "-show_entries", "stream=nb_read_frames", "-of", "json", str(movie)
+          ], text=True))
+          expected_frames = round(9.625 * 30)
+          if int(decoded["streams"][0]["nb_read_frames"]) != expected_frames:
+              raise RuntimeError("Decoded frame count mismatch")
+          subprocess.run(["ffmpeg", "-v", "error", "-xerror", "-err_detect", "explode", "-nostdin", "-i", str(movie), "-map", "0:v:0", "-c:v", "rawvideo", "-f", "null", "-"], check=True)
+          manifest = json.loads((movie.parent / "manifest.json").read_text(encoding="utf-8"))
+          recorded = next(item for item in manifest["artifacts"] if item["path"] == "reel.mp4")
+          if hashlib.sha256(movie.read_bytes()).hexdigest() != recorded["sha256"]:
+              raise RuntimeError("Video manifest SHA-256 mismatch")
+          if movie.stat().st_size != recorded["bytes"]:
+              raise RuntimeError("Video manifest size mismatch")
+          print("Decoded frames:", expected_frames, "; video SHA-256:", recorded["sha256"])
