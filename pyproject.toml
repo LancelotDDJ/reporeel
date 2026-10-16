@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=77.0.3"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "reporeel"
+version = "0.1.0"
+description = "Turn your project screenshots and a storyboard into honest, Chinese-friendly vertical demo videos."
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+authors = [{name = "RepoReel Contributors"}]
+dependencies = ["Pillow>=10.0"]
+keywords = ["video", "github", "creator", "storyboard", "chinese"]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Topic :: Multimedia :: Video",
+]
+
+[project.scripts]
+reporeel = "reporeel.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
