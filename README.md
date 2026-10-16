@@ -97,6 +97,12 @@ The format is intentionally narrow:
 
 Only publish verified feature claims. The tool does not predict followers, stars or sales. Measure those separately using real evidence.
 
+## Demo requests and first-run feedback
+
+[Discuss a 20–30 second project demo](https://github.com/LancelotDDJ/reporeel/issues/new?template=project-demo.yml) with one feature, a public project link and assets you may publish. Availability, scope and any fees are agreed separately; submitting a brief does not place an order. The CLI is available under MIT.
+
+[Share your first-run result](https://github.com/LancelotDDJ/reporeel/issues/new?template=first-run.yml), successful or otherwise. Both forms create public issues: share only sanitized text, never credentials, private screenshots or full sensitive logs.
+
 ## Development
 
 ```bash

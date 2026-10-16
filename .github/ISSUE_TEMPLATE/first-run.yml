@@ -1,0 +1,77 @@
+name: First-run feedback / 首次运行反馈
+description: Share your environment, steps and a small sanitized result or error.
+title: "[First run] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **This issue is public. 此表单及后续回复公开可见。**
+
+        Tell us what you tried and what happened, including a successful first run.
+        Share only a short, sanitized error excerpt if needed, not an entire log or screenshot.
+        Remove local usernames, absolute paths, keys, tokens, cookies and private project details.
+        不收联系方式、账号凭证、私人截图或整份日志。请用 `<USER>`、`<PATH>` 等替代本地身份与路径。
+
+        Without FFmpeg, `doctor` may exit 1 while `images_ready` is true; that means video is not ready, not that installation failed.
+        没有 FFmpeg 时可先使用 `--images-only`；请如实选择就绪状态，不必为反馈安装新软件。
+  - type: input
+    id: os
+    attributes:
+      label: OS and version / 操作系统与版本
+      placeholder: Windows 11 / macOS 15 / Ubuntu 24.04
+    validations:
+      required: true
+  - type: input
+    id: python
+    attributes:
+      label: Python version / Python 版本
+      description: Version number only, without the local executable path. / 只填版本号，不填本地解释器路径。
+      placeholder: Python 3.10.21
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: What you tried / 操作步骤
+      description: List the install, sample or build commands you used; replace private paths and arguments. / 仅列必要步骤，先删除私有路径及参数。
+      placeholder: "1. 安装：……\n2. 运行：……\n3. 期望结果：……"
+      render: text
+    validations:
+      required: true
+  - type: textarea
+    id: result
+    attributes:
+      label: Result or sanitized error / 结果或脱敏错误
+      description: Say what worked or failed. If there is an error, paste only the relevant 5–15 lines after redaction. No full logs or attachments. / 成功也欢迎反馈；错误只贴必要的 5–15 行，不贴整份日志或附件。
+      placeholder: "实际结果：……；必要错误摘录（已脱敏，如无可写无）：……"
+      render: text
+    validations:
+      required: true
+  - type: dropdown
+    id: font-ready
+    attributes:
+      label: CJK font readiness / 中文字体是否就绪
+      options:
+        - Ready / 已就绪
+        - Missing or font error / 未找到或报错
+        - Unknown or not checked / 未确认
+    validations:
+      required: true
+  - type: dropdown
+    id: ffmpeg-ready
+    attributes:
+      label: FFmpeg and libx264 readiness / 视频编码是否就绪
+      options:
+        - Ready with libx264 / 已确认支持 libx264
+        - FFmpeg missing or libx264 unavailable / 未找到 FFmpeg 或不支持 libx264
+        - Images-only run; not checked / 仅导出图片，未检查
+        - Unknown / 未确认
+    validations:
+      required: true
+  - type: checkboxes
+    id: privacy
+    attributes:
+      label: Privacy check / 脱敏确认
+      options:
+        - label: I removed local usernames, private paths, secrets and private content, and did not include a full log or private attachment. / 我已删除本地用户名、私有路径、密钥及私人内容，未提交整份日志或私人附件。
+          required: true

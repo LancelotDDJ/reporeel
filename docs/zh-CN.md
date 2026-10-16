@@ -53,6 +53,12 @@ Windows 默认识别微软雅黑，macOS 识别苹方，Linux 识别常见路径
 
 如 FFmpeg 失败，命令返回非零状态，已生成的图片和脚本保留。修正问题后使用新的输出目录重新运行。导出过程不会登录账号、发送内容或联网获取素材。
 
+## 演示需求与首次试用反馈
+
+[沟通一条 20–30 秒项目演示需求](https://github.com/LancelotDDJ/reporeel/issues/new?template=project-demo.yml)：提供公开项目、一项功能和有权公开的素材说明。是否承接、交付范围及收费由双方另行确认，提交需求不代表下单。CLI 继续按 MIT 协议提供。
+
+[反馈首次运行结果](https://github.com/LancelotDDJ/reporeel/issues/new?template=first-run.yml)，成功或失败都欢迎。两个表单均公开可见：只填脱敏文字，不填凭证、私人截图或整份敏感日志。
+
 ## 参与开发
 
 ```powershell

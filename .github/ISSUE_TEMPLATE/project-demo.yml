@@ -1,0 +1,71 @@
+name: Project demo brief / 项目演示需求
+description: Discuss a public project's 20–30 second demo; not an order or quote.
+title: "[Demo brief] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **This issue is public. 此表单及后续回复公开可见。**
+
+        Describe one feature of a public project and the demo you would like to discuss.
+        Availability, scope and any fees are agreed separately; submitting a brief does not place an order.
+        No follower, Star, traffic or revenue result is promised.
+
+        是否承接、交付范围及收费由双方另行确认，提交需求不代表下单。
+        不要填写微信、电话、邮箱、账号凭证、私人截图或其他非公开信息。只描述你有权公开的素材。
+  - type: input
+    id: project-url
+    attributes:
+      label: Public project URL / 公开项目链接
+      description: A public repository or project page, without access tokens or private links. / 仅填写公开仓库或项目页，不附访问令牌。
+      placeholder: https://github.com/your-org/your-project
+    validations:
+      required: true
+  - type: dropdown
+    id: platforms
+    attributes:
+      label: Intended platforms / 希望用于哪些平台
+      description: Select the destinations you want to discuss. / 可多选。
+      multiple: true
+      options:
+        - Bilibili / B站
+        - Xiaohongshu / 小红书
+        - GitHub
+    validations:
+      required: true
+  - type: textarea
+    id: one-feature
+    attributes:
+      label: One feature in 20–30 seconds / 20–30 秒希望展示的一项功能
+      description: Who is the viewer, what input or action should be shown, and what verifiable result should they understand? / 请聚焦一项功能、一次操作和可核对的结果。
+      placeholder: "观众：……；功能：……；操作前后：……；希望观众看懂：……"
+      render: text
+    validations:
+      required: true
+  - type: textarea
+    id: public-assets
+    attributes:
+      label: Public assets and rights / 可公开素材与使用权说明
+      description: Describe which screenshots and text you own or may publish, with public source links if available. Do not upload private files. / 说明素材归属、公开使用许可及需要隐去的内容；这里只要说明，不收私人截图。
+      placeholder: "可公开素材：……；来源/权利依据：……；需排除的内容：……"
+      render: text
+    validations:
+      required: true
+  - type: textarea
+    id: requested-scope
+    attributes:
+      label: Scope to discuss / 待确认的交付范围
+      description: The CLI currently produces static scene cards and a silent vertical MP4, cover, SRT and written narration script. Describe requested files and how you would check this one feature. Extra work needs separate confirmation. / 当前 CLI 不内置配音；请写希望讨论的文件和验收方式，最终范围另行确认。
+      placeholder: "希望交付的文件：……；本次不包含：……；如何判断功能讲清楚了：……"
+      render: text
+    validations:
+      required: true
+  - type: checkboxes
+    id: acknowledgement
+    attributes:
+      label: Confirm before posting / 提交前确认
+      options:
+        - label: I may publicly share everything in this brief and have included no private/contact/credential material. / 我有权公开所填内容，未包含私人资料、联系方式或凭证。
+          required: true
+        - label: Availability, scope and any fees are agreed separately; this brief is not an order. / 我理解是否承接、范围及收费需双方另行确认，提交需求不代表下单。
+          required: true
