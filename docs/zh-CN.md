@@ -4,9 +4,19 @@
 
 首版完全本地运行，只依赖 Python、Pillow 和可选的 FFmpeg。没有登录、付费接口、自动发布或内置 AI 文案生成。示例脚本和界面都明确标为 **DEMO 模板示例**。
 
-## 三步运行
+## 先看效果
+
+[30 秒合成旁白 DEMO](https://github.com/LancelotDDJ/reporeel/releases/download/v0.1.0/reporeel-30s-a-publication.mp4) · [v0.1.0 预览版下载](https://github.com/LancelotDDJ/reporeel/releases/tag/v0.1.0)
+
+样片另外添加了合成旁白，CLI 本身仍输出静音视频。演示制作于首次开源之前，片中的待公开说明为当时状态；当前源码与下载已公开。首版为预览版，暂无已验证的增长或收入效果。
+
+## 开始运行
+
+克隆后进入项目根目录。如果下载的是源码 ZIP，先解压，在含 `pyproject.toml` 的目录打开终端，并跳过下面前两行。
 
 ```powershell
+git clone https://github.com/LancelotDDJ/reporeel.git
+cd reporeel
 python -m pip install -e .
 python -m reporeel sample demo
 python -m reporeel build demo/storyboard.json --out output/first-demo
@@ -14,7 +24,7 @@ python -m reporeel build demo/storyboard.json --out output/first-demo
 
 需要 Python 3.10+。导出视频还需要含 `libx264` 编码器的 FFmpeg。用 `python -m reporeel doctor` 检查环境；FFmpeg 不在 PATH 时，通过 `--ffmpeg "路径/ffmpeg.exe"` 指定。
 
-没有 FFmpeg 时仍然可以制作图片和文案：
+没有 FFmpeg 时，`doctor` 返回退出码 1，并显示 `video_ready: false`；这表示视频编码尚未就绪。如果 `images_ready` 为 `true`，图片与文案仍可生成，将视频导出命令换成：
 
 ```powershell
 python -m reporeel build demo/storyboard.json --out output/stills --images-only

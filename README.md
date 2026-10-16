@@ -10,11 +10,21 @@ The included screenshots are **synthetic DEMO templates**, visibly labelled thro
 
 [中文说明](docs/zh-CN.md)
 
+## See the result
+
+[Watch the 30-second narrated DEMO](https://github.com/LancelotDDJ/reporeel/releases/download/v0.1.0/reporeel-30s-a-publication.mp4) · [Download the v0.1.0 preview](https://github.com/LancelotDDJ/reporeel/releases/tag/v0.1.0)
+
+The demo has separately added synthetic narration; the CLI itself exports silent video. It was made before the first public release, so its reference to source coming later is historical. The source and downloads are now public. This is a prerelease, with no verified audience-growth or revenue result.
+
 ## Quick start
 
 Requires Python 3.10+, Pillow, a Chinese-capable font, and FFmpeg with `libx264` for video. Windows Microsoft YaHei, macOS PingFang, and Linux Noto Sans CJK are detected in common system locations.
 
+Clone the repository and run from its root directory. If using the source ZIP instead, extract it and open a terminal in the directory containing `pyproject.toml`; skip the first two commands.
+
 ```bash
+git clone https://github.com/LancelotDDJ/reporeel.git
+cd reporeel
 python -m pip install -e .
 reporeel doctor
 reporeel sample demo
@@ -28,7 +38,7 @@ reporeel doctor --ffmpeg "/path/to/ffmpeg"
 reporeel build demo/storyboard.json --out output/first-demo --ffmpeg "/path/to/ffmpeg"
 ```
 
-Without FFmpeg, all image and text outputs still work:
+Without FFmpeg, `doctor` exits with status 1 and reports `video_ready: false`. If `images_ready` is `true`, image and text exports still work; use the following command instead of the video build:
 
 ```bash
 reporeel build demo/storyboard.json --out output/stills --images-only
